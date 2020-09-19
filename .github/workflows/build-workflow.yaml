@@ -87,16 +87,19 @@ jobs:
       - uses: msys2/setup-msys2@v2
         with:
           update: false
-          install: base-devel curl tar zip unzip freetype
+          install: base-devel curl tar zip unzip
       - name: Run
         run: |
           set -eux
+          curl -f -L -o "freetype.tar.gz" "https://github.com/ubawurinna/freetype-windows-binaries/archive/v2.10.2.tar.gz"
+          tar -xf "freetype-windows-binaries-2.10.2.tar.gz"
+
           curl -f -L -o "jdkforest.tar.xz" "https://github.com/zzambers/test-jdk-builder/releases/download/build-latest/jdkforest.tar.xz"
           tar -xJf "jdkforest.tar.xz"
           cd jdkforest
           sed -i 's@\$CC \$FIXPATH_SRC@FIXPATH_SRC=$( echo $FIXPATH_SRC | tr "/" "\\\\" ) ; FIXPATH_BIN=$( echo $FIXPATH_BIN | tr "/" "\\\\" ) ; echo FIXPATH_SRC: $FIXPATH_SRC ; echo FIXPATH_BIN: $FIXPATH_BIN ; $CC $FIXPATH_SRC@g' common/autoconf/generated-configure.sh
-          
-          bash ./configure --with-boot-jdk="${JAVA_HOME}" --enable-debug --enable-unlimited-crypto --enable-jfr
+
+          bash ./configure --with-boot-jdk="${JAVA_HOME}" --enable-debug --enable-unlimited-crypto --enable-jfr --with-freetype="${CWD}/freetype-windows-binaries-2.10.2"
           make images
           ls build
           ls build/*/images
