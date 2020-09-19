@@ -72,9 +72,17 @@ jobs:
           files: |
             jdkforest.tar.xz
 
+  win-choco:
+    name: "Windows choco"
+    runs-on: "windows-latest"
+    steps:
+      - name: Run
+        run: choco install vcexpress2010
+
   build-win:
     name: "Build windows"
     runs-on: "windows-2016"
+    if: false
     #needs: gen-src-archive
     defaults:
       run:
