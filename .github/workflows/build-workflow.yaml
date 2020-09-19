@@ -68,6 +68,8 @@ jobs:
       - name: Run
         run: |
           sudo apt-get install libx11-dev libxext-dev libxrender-dev libxtst-dev libxt-dev
+          sudo apt-get install libcups2-dev
+          sudo apt-get install libasound2-dev
           cd jdkforest
           bash ./configure --with-boot-jdk="${JAVA_HOME}" --enable-debug --enable-unlimited-crypto --enable-jfr
           make images
