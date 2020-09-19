@@ -75,6 +75,7 @@ jobs:
   win-choco:
     name: "Windows choco"
     runs-on: "windows-2016"
+    if: false
     steps:
       - name: Run
         run: choco install vcexpress2010
@@ -82,11 +83,7 @@ jobs:
   build-win:
     name: "Build windows"
     runs-on: "windows-2016"
-    if: false
     #needs: gen-src-archive
-    defaults:
-      run:
-        shell: msys2 {0}
     steps:
       - uses: actions/checkout@v2
       - uses: actions/setup-java@v1
@@ -96,11 +93,13 @@ jobs:
         with:
           release: false
           install: base-devel curl tar zip unzip
-      - name: Run
+      - name: Instal vc2010
+        run: choco install vcexpress2010
+      - name: Run build
+        shell: msys2 {0}
         run: |
           set -eux
           # https://github.community/t/how-to-use-vc100-for-msbuild/16623/2
-          cmd /c "choco install vcexpress2010"
           curl -f -L -o "freetype-windows-binaries-2.10.2.tar.gz" "https://github.com/ubawurinna/freetype-windows-binaries/archive/v2.10.2.tar.gz"
           tar -xf "freetype-windows-binaries-2.10.2.tar.gz"
           cp -a "freetype-windows-binaries-2.10.2/win64" "freetype-windows-binaries-2.10.2/lib"
