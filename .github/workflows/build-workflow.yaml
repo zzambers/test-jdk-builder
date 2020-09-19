@@ -87,7 +87,7 @@ jobs:
       - uses: msys2/setup-msys2@v2
         with:
           update: false
-          install: base-devel curl tar zip unzip
+          install: base-devel curl tar zip unzip freetype
       - name: Run
         run: |
           set -eux
