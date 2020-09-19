@@ -8,10 +8,9 @@ on:
       - "*"
 
 jobs:
-  test-auto:
-    name: "Build"
-    runs-on: "ubuntu-16.04"
-
+  gen-src-archive:
+    name: "Generate source archive"
+    runs-on: "ubuntu-latest"
     steps:
       - uses: actions/checkout@v2
       - name: checkout jdkforest-top
@@ -62,15 +61,34 @@ jobs:
           repository: ojdk-qa/jdkforest-nashorn
           path: jdkforest/nashorn
           ref: 'jdk8u272-b08'
+      - name: Run
+        run: |
+          tar -cJf jdkforest.tar.xz --exclude-vcs jdkforest
+      - uses: eine/tip@master
+        with:
+          tag: build-latest
+          token: ${{ secrets.GITHUB_TOKEN }}
+          files: |
+            jdkforest.tar.xz
+
+  build-native:
+    name: "Build native"
+    runs-on: "ubuntu-16.04"
+    needs: gen-src-archive
+    steps:
+      - uses: actions/checkout@v2
       - uses: actions/setup-java@v1
         with:
           java-version: '7'
       - name: Run
         run: |
+          curl -f -L -o "jdkforest.tar.xz" "https://raw.githubusercontent.com/zzambers/test-jdk-builder/releases/download/build-latest/jdkforest.tar.xz"
+          tar -xJf "jdkforest.tar.xz"
           sudo apt-get install libx11-dev libxext-dev libxrender-dev libxtst-dev libxt-dev
           sudo apt-get install libcups2-dev
           sudo apt-get install libasound2-dev
           cd jdkforest
           bash ./configure --with-boot-jdk="${JAVA_HOME}" --enable-debug --enable-unlimited-crypto --enable-jfr
           make images
-
+          ls build
+          ls build/*/images
