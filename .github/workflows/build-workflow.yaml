@@ -86,7 +86,7 @@ jobs:
           java-version: '7'
       - uses: msys2/setup-msys2@v2
         with:
-          update: false
+          release: false
           install: base-devel curl tar zip unzip
       - name: Run
         run: |
@@ -99,7 +99,7 @@ jobs:
           cd jdkforest
           sed -i 's@\$CC \$FIXPATH_SRC@FIXPATH_SRC=$( echo $FIXPATH_SRC | tr "/" "\\\\" ) ; FIXPATH_BIN=$( echo $FIXPATH_BIN | tr "/" "\\\\" ) ; echo FIXPATH_SRC: $FIXPATH_SRC ; echo FIXPATH_BIN: $FIXPATH_BIN ; $CC $FIXPATH_SRC@g' common/autoconf/generated-configure.sh
 
-          bash ./configure --with-boot-jdk="${JAVA_HOME}" --enable-debug --enable-unlimited-crypto --enable-jfr --with-freetype="${CWD}/freetype-windows-binaries-2.10.2"
+          bash ./configure --with-boot-jdk="${JAVA_HOME}" --enable-debug --enable-unlimited-crypto --enable-jfr --with-freetype="$( readlink -f freetype-windows-binaries-2.10.2 )"
           make images
           ls build
           ls build/*/images
