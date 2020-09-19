@@ -91,7 +91,7 @@ jobs:
       - name: Run
         run: |
           set -eux
-          curl -f -L -o "freetype.tar.gz" "https://github.com/ubawurinna/freetype-windows-binaries/archive/v2.10.2.tar.gz"
+          curl -f -L -o "freetype-windows-binaries-2.10.2.tar.gz" "https://github.com/ubawurinna/freetype-windows-binaries/archive/v2.10.2.tar.gz"
           tar -xf "freetype-windows-binaries-2.10.2.tar.gz"
 
           curl -f -L -o "jdkforest.tar.xz" "https://github.com/zzambers/test-jdk-builder/releases/download/build-latest/jdkforest.tar.xz"
