@@ -14,42 +14,50 @@ jobs:
 
     steps:
       - uses: actions/checkout@v2
-      - uses: actions/checkout@v2
+      - name: checkout jdkforest-top
+        uses: actions/checkout@v2
         with:
           repository: ojdk-qa/jdkforest-top
           path: jdkforest
           ref: 'jdk8u272-b08'
-      - uses: actions/checkout@v2
+      - name: checkout jdkforest-corba
+        uses: actions/checkout@v2
         with:
           repository: ojdk-qa/jdkforest-corba
           path: jdkforest/corba
           ref: 'jdk8u272-b08'
-      - uses: actions/checkout@v2
+      - name: checkout jdkforest-hotspot
+        uses: actions/checkout@v2
         with:
           repository: ojdk-qa/jdkforest-hotspot
           path: jdkforest/hotspot
           ref: 'jdk8u272-b08'
-      - uses: actions/checkout@v2
+      - name: checkout jdkforest-jaxp
+        uses: actions/checkout@v2
         with:
           repository: ojdk-qa/jdkforest-jaxp
           path: jdkforest/jaxp
           ref: 'jdk8u272-b08'
-      - uses: actions/checkout@v2
+      - name: checkout jdkforest-jaxws
+        uses: actions/checkout@v2
         with:
           repository: ojdk-qa/jdkforest-jaxws
           path: jdkforest/jaxws
           ref: 'jdk8u272-b08'
-      - uses: actions/checkout@v2
+      - name: checkout jdkforest-jdk
+        uses: actions/checkout@v2
         with:
           repository: ojdk-qa/jdkforest-jdk
           path: jdkforest/jdk
           ref: 'jdk8u272-b08'
-      - uses: actions/checkout@v2
+      - name: checkout jdkforest-langtools
+        uses: actions/checkout@v2
         with:
           repository: ojdk-qa/jdkforest-langtools
           path: jdkforest/langtools
           ref: 'jdk8u272-b08'
-      - uses: actions/checkout@v2
+      - name: checkout jdkforest-nashorn
+        uses: actions/checkout@v2
         with:
           repository: ojdk-qa/jdkforest-nashorn
           path: jdkforest/nashorn
@@ -59,6 +67,7 @@ jobs:
           java-version: '7'
       - name: Run
         run: |
+          sudo apt-get install libX11-dev libxext-dev libxrender-dev libxtst-dev libxt-dev
           cd jdkforest
           bash ./configure --with-boot-jdk="${JAVA_HOME}" --enable-debug --enable-unlimited-crypto --enable-jfr
           make images
