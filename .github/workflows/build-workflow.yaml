@@ -88,6 +88,10 @@ jobs:
         with:
           release: false
           install: base-devel curl tar zip unzip
+      - name: Add msbuild to PATH
+        uses: microsoft/setup-msbuild@v1.0.1
+        with:
+          vs-version: '[10.0,11.0)'
       - name: Run
         run: |
           set -eux
@@ -101,7 +105,7 @@ jobs:
           cd jdkforest
           sed -i 's@\$CC \$FIXPATH_SRC@FIXPATH_SRC=$( echo $FIXPATH_SRC | tr "/" "\\\\" ) ; FIXPATH_BIN=$( echo $FIXPATH_BIN | tr "/" "\\\\" ) ; echo FIXPATH_SRC: $FIXPATH_SRC ; echo FIXPATH_BIN: $FIXPATH_BIN ; $CC $FIXPATH_SRC@g' common/autoconf/generated-configure.sh
 
-          bash ./configure --with-boot-jdk="${JAVA_HOME}" --with-toolchain-version=2010 --enable-debug --enable-unlimited-crypto --enable-jfr --with-freetype="${freetypeDir}"
+          bash ./configure --with-boot-jdk="${JAVA_HOME}" --enable-debug --enable-unlimited-crypto --enable-jfr --with-freetype="${freetypeDir}"
           make images
           ls build
           ls build/*/images
