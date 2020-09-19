@@ -59,6 +59,7 @@ jobs:
           java-version: '7'
       - name: Run
         run: |
+          cd jdkforest
           bash ./configure --with-boot-jdk="${JAVA_HOME}" --enable-debug --enable-unlimited-crypto --enable-jfr
           make images
 
