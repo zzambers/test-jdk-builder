@@ -92,7 +92,7 @@ jobs:
         run: |
           set -eux
           # https://github.community/t/how-to-use-vc100-for-msbuild/16623/2
-          choco install vcexpress2010
+          cmd /c "choco install vcexpress2010"
           curl -f -L -o "freetype-windows-binaries-2.10.2.tar.gz" "https://github.com/ubawurinna/freetype-windows-binaries/archive/v2.10.2.tar.gz"
           tar -xf "freetype-windows-binaries-2.10.2.tar.gz"
           cp -a "freetype-windows-binaries-2.10.2/win64" "freetype-windows-binaries-2.10.2/lib"
