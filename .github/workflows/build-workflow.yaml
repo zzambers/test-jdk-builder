@@ -82,7 +82,7 @@ jobs:
           java-version: '7'
       - name: Run
         run: |
-          curl -f -L -o "jdkforest.tar.xz" "https://raw.githubusercontent.com/zzambers/test-jdk-builder/releases/download/build-latest/jdkforest.tar.xz"
+          curl -f -L -o "jdkforest.tar.xz" "https://github.com/zzambers/test-jdk-builder/releases/download/build-latest/jdkforest.tar.xz"
           tar -xJf "jdkforest.tar.xz"
           sudo apt-get install libx11-dev libxext-dev libxrender-dev libxtst-dev libxt-dev
           sudo apt-get install libcups2-dev
