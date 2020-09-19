@@ -74,7 +74,7 @@ jobs:
 
   win-choco:
     name: "Windows choco"
-    runs-on: "windows-latest"
+    runs-on: "windows-2016"
     steps:
       - name: Run
         run: choco install vcexpress2010
