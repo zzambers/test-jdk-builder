@@ -78,11 +78,15 @@ jobs:
     steps:
       #- name: Run
       #  run: choco install vcexpress2010
+      - uses: msys2/setup-msys2@v2
+        with:
+          release: false
       - name: Run build
         shell: msys2 {0}
         run: |
           find "/C/Program Files/Microsoft Visual Studio 10.0"
           find "/C/Program Files (x86)/Microsoft Visual Studio 10.0"
+          printenv
 
   build-win:
     name: "Build windows"
