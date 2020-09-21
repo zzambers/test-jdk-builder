@@ -73,16 +73,21 @@ jobs:
             jdkforest.tar.xz
 
   win-choco:
-    name: "Windows choco"
+    name: "Windows test"
     runs-on: "windows-2016"
-    if: false
     steps:
-      - name: Run
-        run: choco install vcexpress2010
+      #- name: Run
+      #  run: choco install vcexpress2010
+      - name: Run build
+        shell: msys2 {0}
+        run: |
+          find "/C/Program Files/Microsoft Visual Studio 10.0"
+          find "/C/Program Files (x86)/Microsoft Visual Studio 10.0"
 
   build-win:
     name: "Build windows"
     runs-on: "windows-2016"
+    if: false
     #needs: gen-src-archive
     steps:
       - uses: actions/checkout@v2
