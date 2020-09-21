@@ -81,10 +81,9 @@ jobs:
       #- name: Instal vc2010
       #  run: choco install windows-sdk-7.1
       #  continue-on-error: true
-      - name: Print choco log
+      - name: List choco packages
         run:
           choco list -li
-          cat C:\ProgramData\chocolatey\logs\chocolatey.log || true
       - uses: msys2/setup-msys2@v2
         with:
           release: false
