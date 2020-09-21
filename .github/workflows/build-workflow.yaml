@@ -81,6 +81,9 @@ jobs:
       - name: Instal vc2010
         run: choco install windows-sdk-7.1
         continue-on-error: true
+      - name: Print choco log
+        run:
+          cat C:\ProgramData\chocolatey\logs\chocolatey.log || true
       - uses: msys2/setup-msys2@v2
         with:
           release: false
@@ -116,7 +119,6 @@ jobs:
         shell: msys2 {0}
         run: |
           set -eux
-          cat C:\ProgramData\chocolatey\logs\chocolatey.log
           # https://github.community/t/how-to-use-vc100-for-msbuild/16623/2
           curl -f -L -o "freetype-windows-binaries-2.10.2.tar.gz" "https://github.com/ubawurinna/freetype-windows-binaries/archive/v2.10.2.tar.gz"
           tar -xf "freetype-windows-binaries-2.10.2.tar.gz"
