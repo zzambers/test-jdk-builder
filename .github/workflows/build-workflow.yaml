@@ -75,6 +75,7 @@ jobs:
   win-choco:
     name: "Windows test"
     runs-on: "windows-2016"
+    if: false
     steps:
       # https://stackoverflow.com/questions/1865069/how-to-compile-a-64-bit-application-using-visual-c-2010-express
       # http://blog.buildamation.com/2018/06/06/visualstudio-2010-c-express-with-64-bit-support/
@@ -102,7 +103,6 @@ jobs:
   build-win:
     name: "Build windows"
     runs-on: "windows-2016"
-    if: false
     #needs: gen-src-archive
     steps:
       - uses: actions/checkout@v2
@@ -122,7 +122,7 @@ jobs:
           # https://github.community/t/how-to-use-vc100-for-msbuild/16623/2
           curl -f -L -o "freetype-windows-binaries-2.10.2.tar.gz" "https://github.com/ubawurinna/freetype-windows-binaries/archive/v2.10.2.tar.gz"
           tar -xf "freetype-windows-binaries-2.10.2.tar.gz"
-          cp -a "freetype-windows-binaries-2.10.2/win64" "freetype-windows-binaries-2.10.2/lib"
+          cp -a "freetype-windows-binaries-2.10.2/win32" "freetype-windows-binaries-2.10.2/lib"
           freetypeDir="$( readlink -f freetype-windows-binaries-2.10.2 )"
 
           curl -f -L -o "jdkforest.tar.xz" "https://github.com/zzambers/test-jdk-builder/releases/download/build-latest/jdkforest.tar.xz"
@@ -130,7 +130,7 @@ jobs:
           cd jdkforest
           sed -i 's@\$CC \$FIXPATH_SRC@FIXPATH_SRC=$( echo $FIXPATH_SRC | tr "/" "\\\\" ) ; FIXPATH_BIN=$( echo $FIXPATH_BIN | tr "/" "\\\\" ) ; echo FIXPATH_SRC: $FIXPATH_SRC ; echo FIXPATH_BIN: $FIXPATH_BIN ; $CC $FIXPATH_SRC@g' common/autoconf/generated-configure.sh
 
-          bash ./configure --with-boot-jdk="${JAVA_HOME}" --with-toolchain-version=2010 --enable-debug --enable-unlimited-crypto --enable-jfr --with-freetype="${freetypeDir}"
+          bash ./configure --with-boot-jdk="${JAVA_HOME}" --with-toolchain-version=2010 --with-target-bits=32 --enable-debug --enable-unlimited-crypto --enable-jfr --with-freetype="${freetypeDir}"
           make images
           ls build
           ls build/*/images
