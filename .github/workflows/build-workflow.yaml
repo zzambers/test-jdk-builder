@@ -78,11 +78,12 @@ jobs:
     steps:
       # https://stackoverflow.com/questions/1865069/how-to-compile-a-64-bit-application-using-visual-c-2010-express
       # http://blog.buildamation.com/2018/06/06/visualstudio-2010-c-express-with-64-bit-support/
-      - name: Instal vc2010
-        run: choco install windows-sdk-7.1
-        continue-on-error: true
+      #- name: Instal vc2010
+      #  run: choco install windows-sdk-7.1
+      #  continue-on-error: true
       - name: Print choco log
         run:
+          choco list --local-only
           cat C:\ProgramData\chocolatey\logs\chocolatey.log || true
       - uses: msys2/setup-msys2@v2
         with:
