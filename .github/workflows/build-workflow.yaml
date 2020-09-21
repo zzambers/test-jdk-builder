@@ -76,8 +76,8 @@ jobs:
     name: "Windows test"
     runs-on: "windows-2016"
     steps:
-      #- name: Run
-      #  run: choco install vcexpress2010
+      - name: Run
+        run: choco install vcexpress2010
       - uses: msys2/setup-msys2@v2
         with:
           release: false
