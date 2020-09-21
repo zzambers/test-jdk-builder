@@ -84,9 +84,14 @@ jobs:
       - name: Run build
         shell: msys2 {0}
         run: |
-          find "/C/Program Files/Microsoft Visual Studio 10.0"
-          find "/C/Program Files (x86)/Microsoft Visual Studio 10.0"
+          set -eux
           printenv
+          ls "/C/Program Files" || true
+          ls "/C/Program Files (x86)" || true
+          find "/C/Microsoft Visual Studio 10.0" || true
+          find "/C/Program Files (x86)/Microsoft Visual Studio 10.0" || true
+
+
 
   build-win:
     name: "Build windows"
