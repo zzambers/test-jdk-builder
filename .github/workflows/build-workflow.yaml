@@ -76,8 +76,8 @@ jobs:
     name: "Windows test"
     runs-on: "windows-2016"
     steps:
-      - name: Run
-        run: choco install vcexpress2010
+      - name: Instal vc2010
+        run: choco install windows-sdk-7.1
       - uses: msys2/setup-msys2@v2
         with:
           release: false
