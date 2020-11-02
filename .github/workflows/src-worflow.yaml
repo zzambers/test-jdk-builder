@@ -1,0 +1,108 @@
+name: "source"
+
+on:
+  push:
+    tags:
+      - "source/*"
+jobs:
+  gen-src-archive:
+    name: "Generate source archive"
+    runs-on: "ubuntu-latest"
+    steps:
+      - uses: actions/checkout@v2
+      - name: checkout autoupdater
+        with:
+          repository: ojdk-qa/autoupdater
+          path: autoupdater
+      - name: setup environment vars
+        run: |
+          set -eux
+          . ./helper-funcs.sh
+          echo "${GITHUB_REF}"
+          set_jdk_envvars_github "jdk8u272-b08"
+      - name: checkout jdkforest-top
+        uses: actions/checkout@v2
+        if: ${{ env.JDK_REPO_TYPE == 'hg-forest' }}
+        with:
+          repository: ojdk-qa/jdkforest-top
+          path: ${{ format('openjdk-{0}-src', env.JDK_TAG) }}
+          ref: ${{ env.JDK_TAG }}
+      - name: checkout jdkforest-corba
+        uses: actions/checkout@v2
+        if: ${{ env.JDK_REPO_TYPE == 'hg-forest' }}
+        with:
+          repository: ojdk-qa/jdkforest-corba
+          path: ${{ format('openjdk-{0}-src/{1}', env.JDK_TAG, 'corba') }}
+          ref: ${{ env.JDK_TAG }}
+      - name: checkout jdkforest-hotspot
+        uses: actions/checkout@v2
+        if: ${{ env.JDK_REPO_TYPE == 'hg-forest' }}
+        with:
+          repository: ojdk-qa/jdkforest-hotspot
+          path: ${{ format('openjdk-{0}-src/{1}', env.JDK_TAG, 'hotspot') }}
+          ref: ${{ env.JDK_TAG }}
+      - name: checkout jdkforest-jaxp
+        uses: actions/checkout@v2
+        if: ${{ env.JDK_REPO_TYPE == 'hg-forest' }}
+        with:
+          repository: ojdk-qa/jdkforest-jaxp
+          path: ${{ format('openjdk-{0}-src/{1}', env.JDK_TAG, 'jaxp') }}
+          ref: ${{ env.JDK_TAG }}
+      - name: checkout jdkforest-jaxws
+        uses: actions/checkout@v2
+        if: ${{ env.JDK_REPO_TYPE == 'hg-forest' }}
+        with:
+          repository: ojdk-qa/jdkforest-jaxws
+          path: ${{ format('openjdk-{0}-src/{1}', env.JDK_TAG, 'jaxws') }}
+          ref: ${{ env.JDK_TAG }}
+      - name: checkout jdkforest-jdk
+        uses: actions/checkout@v2
+        if: ${{ env.JDK_REPO_TYPE == 'hg-forest' }}
+        with:
+          repository: ojdk-qa/jdkforest-jdk
+          path: ${{ format('openjdk-{0}-src/{1}', env.JDK_TAG, 'jdk') }}
+          ref: ${{ env.JDK_TAG }}
+      - name: checkout jdkforest-langtools
+        uses: actions/checkout@v2
+        if: ${{ env.JDK_REPO_TYPE == 'hg-forest' }}
+        with:
+          repository: ojdk-qa/jdkforest-langtools
+          path: ${{ format('openjdk-{0}-src/{1}', env.JDK_TAG, 'langtools') }}
+          ref: ${{ env.JDK_TAG }}
+      - name: checkout jdkforest-nashorn
+        uses: actions/checkout@v2
+        if: ${{ env.JDK_REPO_TYPE == 'hg-forest' }}
+        with:
+          repository: ojdk-qa/jdkforest-nashorn
+          path: ${{ format('openjdk-{0}-src/{1}', env.JDK_TAG, 'nashorn') }}
+          ref: ${{ env.JDK_TAG }}
+      - name: checkout hg-jdk
+        uses: actions/checkout@v2
+        if: ${{ env.JDK_REPO_TYPE == 'hg' }}
+        with:
+          repository: ojdk-qa/hg-jdk
+          path: ${{ format('openjdk-{0}-src', env.JDK_TAG) }}
+          ref: ${{ env.JDK_TAG }}
+      - name: checkout git-jdk
+        uses: actions/checkout@v2
+        if: ${{ env.JDK_REPO_TYPE == 'git' }}
+        with:
+          repository: ojdk-qa/git-jdk
+          path: ${{ format('openjdk-{0}-src', env.JDK_TAG) }}
+          ref: ${{ env.JDK_TAG }}
+      - name: Run
+        run: |
+          set -eux
+          . ./autoupdater/update-funcs.sh
+          pushd "openjdk-${JDK_TAG}-src"
+             false
+          popd
+          setup_git_plugin
+          $( git rev-parse HEAD )
+          tar -cJf jdkforest.tar.xz --exclude-vcs jdkforest
+      - uses: eine/tip@master
+        with:
+          tag: build-latest
+          token: ${{ secrets.GITHUB_TOKEN }}
+          files: |
+            jdkforest.tar.xz
