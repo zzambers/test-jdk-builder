@@ -104,9 +104,11 @@ jobs:
           curl -f -L -o "${PWD}/git-remote-hg/git-hg-helper" "https://raw.githubusercontent.com/mnauw/git-remote-hg/v1.0.0/git-hg-helper"
           chmod +x "${PWD}/git-remote-hg/git-hg-helper"
           . ./helper-funcs.sh
+          download_repo_hg_files
           generate_repo_info_file
           git rev-parse HEAD
-          tar -cJf jdkforest.tar.xz --exclude-vcs jdkforest
+          tar -cJf "openjdk-${JDK_TAG}-src.tar.xz" --exclude-vcs "openjdk-${JDK_TAG}-src"
+          ls -lah
       - uses: eine/tip@master
         if: false
         with:
