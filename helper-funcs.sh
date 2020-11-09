@@ -96,7 +96,7 @@ download_repo_hg_files() (
     repoDir="openjdk-${JDK_TAG}-src"
     urlBase="https://github.com/ojdk-qa/autoupdater/releases/download/hg-files-latest/"
     if [ "${JDK_REPO_TYPE}" = 'hg-forest' ] ; then
-        archive_name="hg-jdkforest-top.tar.xz"
+        archive_name="hg-jdkforest-root.tar.xz"
         curl_retry "${archive_name}" "${urlBase}/${archive_name}"
         tar -xJf "${archive_name}" -C "${repoDir}"/.git
         rm -f "${archive_name}"
