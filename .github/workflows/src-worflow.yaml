@@ -101,6 +101,8 @@ jobs:
              true
           popd
           setup_git_plugin
+          curl -f -L -o "${PWD}/git-remote-hg/git-hg-helper" "https://raw.githubusercontent.com/mnauw/git-remote-hg/v1.0.0/git-hg-helper"
+          chmod +x "${PWD}/git-remote-hg/git-hg-helper"
           . ./helper-funcs.sh
           generate_repo_info_file
           git rev-parse HEAD
