@@ -103,6 +103,7 @@ jobs:
   build-win:
     name: "Build windows"
     runs-on: "windows-2016"
+    if: false
     #needs: gen-src-archive
     steps:
       - uses: actions/checkout@v2
