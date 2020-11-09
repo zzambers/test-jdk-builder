@@ -22,7 +22,7 @@ jobs:
           set -eux
           . ./helper-funcs.sh
           echo "${GITHUB_REF}"
-          set_jdk_envvars_github "jdk8u272-b08"
+          set_jdk_envvars_github "zzci/jdk8u272-b08"
       - name: checkout jdkforest-top
         uses: actions/checkout@v2
         if: ${{ env.JDK_REPO_TYPE == 'hg-forest' }}
@@ -104,6 +104,7 @@ jobs:
           $( git rev-parse HEAD )
           tar -cJf jdkforest.tar.xz --exclude-vcs jdkforest
       - uses: eine/tip@master
+        if: false
         with:
           tag: build-latest
           token: ${{ secrets.GITHUB_TOKEN }}
