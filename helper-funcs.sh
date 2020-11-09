@@ -5,8 +5,10 @@ get_jdk_tag() (
     pattern='^[^/]+/([^/]+)(/.*)*$'
     if printf '%s' "${workflowtag}" | grep -q -E "${pattern}" ; then
         printf '%s' "${workflowtag}" | sed -E "s;${pattern};\\1;g"
+        return 0
     else
         printf '%s' "${workflowtag}"
+        return 0
     fi
     return 1
 )
