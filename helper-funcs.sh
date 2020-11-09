@@ -63,7 +63,7 @@ set_jdk_envvars_github() (
     tag="${1}"
     jdkTag="$( get_jdk_tag "${tag}" )"
     jdkMajor="$( get_jdk_major "${jdkTag}" )"
-    jdkRepoType="$( get_jdk_repo_type "${jdkTag}" )"
+    jdkRepoType="$( get_jdk_repo_type "${jdkMajor}" )"
 
     echo "JDK_TAG=${jdkTag}" >> $GITHUB_ENV
     echo "JDK_MAJOR=${jdkMajor}" >> $GITHUB_ENV
