@@ -4,6 +4,8 @@ on:
   push:
     tags:
       - "source/*"
+    branches:
+      - "master"
 jobs:
   gen-src-archive:
     name: "Generate source archive"
