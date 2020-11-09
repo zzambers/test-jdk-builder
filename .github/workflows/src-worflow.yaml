@@ -101,6 +101,7 @@ jobs:
              true
           popd
           setup_git_plugin
+          . ./helper-funcs.sh
           generate_repo_info_file
           git rev-parse HEAD
           tar -cJf jdkforest.tar.xz --exclude-vcs jdkforest
