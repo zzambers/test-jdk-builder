@@ -98,7 +98,7 @@ jobs:
           set -eux
           . ./autoupdater/update-funcs.sh
           pushd "openjdk-${JDK_TAG}-src"
-             false
+             true
           popd
           setup_git_plugin
           $( git rev-parse HEAD )
