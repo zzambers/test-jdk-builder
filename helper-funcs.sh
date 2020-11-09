@@ -62,12 +62,12 @@ get_jdk_repo_type() (
 set_jdk_envvars_github() (
     tag="${1}"
     jdkTag="$( get_jdk_tag "${tag}" )"
-    jdkMajor="$( get_jdk_major "${tag}" )"
-    jdkRepoType="$( get_jdk_repo_type "${tag}" )"
+    jdkMajor="$( get_jdk_major "${jdkTag}" )"
+    jdkRepoType="$( get_jdk_repo_type "${jdkTag}" )"
 
-    echo "::set-env name=JDK_TAG::${jdkTag}"
-    echo "::set-env name=JDK_MAJOR::${jdkMajor}"
-    echo "::set-env name=JDK_REPO_TYPE::${jdkRepoType}"
+    echo "JDK_TAG=${jdkTag}" >> $GITHUB_ENV
+    echo "JDK_MAJOR=${jdkMajor}" >> $GITHUB_ENV
+    echo "JDK_REPO_TYPE=${jdkRepoType}" >> $GITHUB_ENV
 )
 
 get_hg_commit() (
