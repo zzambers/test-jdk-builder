@@ -22,7 +22,7 @@ jobs:
           set -eux
           . ./helper-funcs.sh
           echo "${GITHUB_REF}"
-          set_jdk_envvars_github "zzci/jdk8u272-b08"
+          set_jdk_envvars_github "zzci/jdk8u272-b08/src/src-archve/1"
       - name: checkout jdkforest-top
         uses: actions/checkout@v2
         if: ${{ env.JDK_REPO_TYPE == 'hg-forest' }}
@@ -111,9 +111,8 @@ jobs:
           zip -9 -q -r "openjdk-${JDK_TAG}-src.zip" "openjdk-${JDK_TAG}-src" -x '*.git*'
           ls -lah
       - uses: eine/tip@master
-        if: false
         with:
-          tag: build-latest
+          tag: ${{ env.JDK_TAG }}
           token: ${{ secrets.GITHUB_TOKEN }}
           files: |
-            jdkforest.tar.xz
+            ${{ format('openjdk-{0}-src.txz', env.JDK_TAG) }}
