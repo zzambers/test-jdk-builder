@@ -101,7 +101,8 @@ jobs:
              true
           popd
           setup_git_plugin
-          $( git rev-parse HEAD )
+          generate_repo_info_file
+          git rev-parse HEAD
           tar -cJf jdkforest.tar.xz --exclude-vcs jdkforest
       - uses: eine/tip@master
         if: false
