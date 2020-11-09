@@ -108,7 +108,7 @@ jobs:
           generate_repo_info_file
           git rev-parse HEAD
           tar -cJf "openjdk-${JDK_TAG}-src.txz" --exclude-vcs "openjdk-${JDK_TAG}-src"
-          zip -r -x '.hg' "openjdk-${JDK_TAG}-src.zip" "openjdk-${JDK_TAG}-src"
+          zip -r "openjdk-${JDK_TAG}-src.zip" "openjdk-${JDK_TAG}-src" -x '*.git*'
           ls -lah
       - uses: eine/tip@master
         if: false
