@@ -107,7 +107,8 @@ jobs:
           download_repo_hg_files
           generate_repo_info_file
           git rev-parse HEAD
-          tar -cJf "openjdk-${JDK_TAG}-src.tar.xz" --exclude-vcs "openjdk-${JDK_TAG}-src"
+          tar -cJf "openjdk-${JDK_TAG}-src.txz" --exclude-vcs "openjdk-${JDK_TAG}-src"
+          zip -r -x '.hg' "openjdk-${JDK_TAG}-src.zip" "openjdk-${JDK_TAG}-src"
           ls -lah
       - uses: eine/tip@master
         if: false
