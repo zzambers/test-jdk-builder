@@ -100,6 +100,7 @@ download_repo_hg_files() (
         curl_retry "${archive_name}" "${urlBase}/${archive_name}"
         tar -xJf "${archive_name}" -C "${repoDir}"/.git
         rm -f "${archive_name}"
+        rm -rf "${repoDir}"/.git/hg
         pushd "${repoDir}"
             git fetch origin refs/notes/hg:refs/notes/hg
         popd
@@ -108,6 +109,7 @@ download_repo_hg_files() (
             curl_retry "${archive_name}" "${urlBase}/${archive_name}"
             tar -xJf "${archive_name}" -C "${repoDir}/${subrepo}/.git"
             rm -f "${archive_name}"
+            rm -rf "${repoDir}/${subrepo}"/.git/hg
             pushd "${repoDir}/${subrepo}"
                 git fetch origin refs/notes/hg:refs/notes/hg
             popd
@@ -117,6 +119,7 @@ download_repo_hg_files() (
         curl_retry "${archive_name}" "${urlBase}/${archive_name}"
         tar -xJf "${archive_name}" -C "${repoDir}"/.git
         rm -f "${archive_name}"
+        rm -rf "${repoDir}"/.git/hg
         pushd "${repoDir}"
             git fetch origin refs/notes/hg:refs/notes/hg
         popd
@@ -130,28 +133,37 @@ tee "${repoDir}/src-info.txt" << EOF
 JDK_REPO_TYPE: ${JDK_REPO_TYPE}
 JDK_MAJOR: ${JDK_MAJOR}
 JDK_TAG: ${JDK_TAG}
-JDK_COMMIT_ROOT: $( get_hg_commit "${repoDir}" "${JDK_TAG}"  )
-JDK_COMMIT_CORBA: $( get_hg_commit "${repoDir}/corba" "${JDK_TAG}"  )
-JDK_COMMIT_HOTSPOT: $( get_hg_commit "${repoDir}/hotspot" "${JDK_TAG}"  )
-JDK_COMMIT_JAXP: $( get_hg_commit "${repoDir}/jaxp" "${JDK_TAG}"  )
-JDK_COMMIT_JAXWS: $( get_hg_commit "${repoDir}/jaxws" "${JDK_TAG}"  )
-JDK_COMMIT_JDK: $( get_hg_commit "${repoDir}/jdk" "${JDK_TAG}"  )
-JDK_COMMIT_LANGTOOLS: $( get_hg_commit "${repoDir}/langtools" "${JDK_TAG}"  )
-JDK_COMMIT_NASHORN: $( get_hg_commit "${repoDir}/nashorn" "${JDK_TAG}"  )
+JDK_HG_REV_ROOT: $( get_hg_commit "${repoDir}" "${JDK_TAG}"  )
+JDK_HG_REV_CORBA: $( get_hg_commit "${repoDir}/corba" "${JDK_TAG}"  )
+JDK_HG_REV_HOTSPOT: $( get_hg_commit "${repoDir}/hotspot" "${JDK_TAG}"  )
+JDK_HG_REV_JAXP: $( get_hg_commit "${repoDir}/jaxp" "${JDK_TAG}"  )
+JDK_HG_REV_JAXWS: $( get_hg_commit "${repoDir}/jaxws" "${JDK_TAG}"  )
+JDK_HG_REV_JDK: $( get_hg_commit "${repoDir}/jdk" "${JDK_TAG}"  )
+JDK_HG_REV_LANGTOOLS: $( get_hg_commit "${repoDir}/langtools" "${JDK_TAG}"  )
+JDK_HG_REV_NASHORN: $( get_hg_commit "${repoDir}/nashorn" "${JDK_TAG}"  )
+JDK_REV_ROOT: $( cd "${repoDir}" && git show-ref --hash "${JDK_TAG}" || : )
+JDK_REV_CORBA: $( cd "${repoDir}/corba" && git show-ref --hash "${JDK_TAG}" || : )
+JDK_REV_HOTSPOT: $( cd "${repoDir}/hotspot" && git show-ref --hash "${JDK_TAG}" || : )
+JDK_REV_JAXP: $( cd "${repoDir}/jaxp" && git show-ref --hash "${JDK_TAG}"  || : )
+JDK_REV_JAXWS: $( cd "${repoDir}/jaxws" && git show-ref --hash "${JDK_TAG}" || : )
+JDK_REV_JDK: $( cd "${repoDir}/jdk" && git show-ref --hash "${JDK_TAG}"  || : )
+JDK_REV_LANGTOOLS: $( cd "${repoDir}/langtools" && git show-ref --hash "${JDK_TAG}"  || : )
+JDK_REV_NASHORN: $( cd "${repoDir}/nashorn" && git show-ref --hash "${JDK_TAG}"  || : )
 EOF
 elif  [ "${JDK_REPO_TYPE}" = 'hg' ] ; then
 tee "${repoDir}/src-info.txt" << EOF
 JDK_REPO_TYPE: ${JDK_REPO_TYPE}
 JDK_MAJOR: ${JDK_MAJOR}
 JDK_TAG: ${JDK_TAG}
-JDK_COMMIT: $( get_hg_commit "${repoDir}" "${JDK_TAG}" )
+JDK_HG_REV: $( get_hg_commit "${repoDir}" "${JDK_TAG}" )
+JDK_REV: $( cd "${repoDir}" && git show-ref --hash "${JDK_TAG}"  || : )
 EOF
 elif  [ "${JDK_REPO_TYPE}" = 'git' ] ; then
 tee "${repoDir}/src-info.txt" << EOF
 JDK_REPO_TYPE: ${JDK_REPO_TYPE}
 JDK_MAJOR: ${JDK_MAJOR}
 JDK_TAG: ${JDK_TAG}
-JDK_COMMIT: $( cd "${repoDir}" && git show-ref --hash "${JDK_TAG}" )
+JDK_REV: $( cd "${repoDir}" && git show-ref --hash "${JDK_TAG}" )
 EOF
 fi
 )
