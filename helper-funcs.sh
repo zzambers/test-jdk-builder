@@ -100,28 +100,37 @@ download_repo_hg_files() (
         curl_retry "${archive_name}" "${urlBase}/${archive_name}"
         tar -xJf "${archive_name}" -C "${repoDir}"/.git
         rm -f "${archive_name}"
+        pushd "${repoDir}"
+            git fetch origin refs/notes/hg:refs/notes/hg
+        popd
         for subrepo in corba hotspot jaxp jaxws jdk langtools nashorn ; do
             archive_name="hg-jdkforest-${subrepo}.tar.xz"
             curl_retry "${archive_name}" "${urlBase}/${archive_name}"
             tar -xJf "${archive_name}" -C "${repoDir}/${subrepo}/.git"
             rm -f "${archive_name}"
+            pushd "${repoDir}/${subrepo}"
+                git fetch origin refs/notes/hg:refs/notes/hg
+            popd
         done
     elif [ "${JDK_REPO_TYPE}" = 'hg' ] ; then
         archive_name="hg-hg-jdk.tar.xz"
         curl_retry "${archive_name}" "${urlBase}/${archive_name}"
         tar -xJf "${archive_name}" -C "${repoDir}"/.git
         rm -f "${archive_name}"
+        pushd "${repoDir}"
+            git fetch origin refs/notes/hg:refs/notes/hg
+        popd
     fi
 )
 
 generate_repo_info_file() (
     repoDir="openjdk-${JDK_TAG}-src"
     if [ "${JDK_REPO_TYPE}" = 'hg-forest' ] ; then
-tee "${repoDir}/repo-info.txt" << EOF
+tee "${repoDir}/src-info.txt" << EOF
 JDK_REPO_TYPE: ${JDK_REPO_TYPE}
 JDK_MAJOR: ${JDK_MAJOR}
 JDK_TAG: ${JDK_TAG}
-JDK_COMMIT_TOP: $( get_hg_commit "${repoDir}" "${JDK_TAG}"  )
+JDK_COMMIT_ROOT: $( get_hg_commit "${repoDir}" "${JDK_TAG}"  )
 JDK_COMMIT_CORBA: $( get_hg_commit "${repoDir}/corba" "${JDK_TAG}"  )
 JDK_COMMIT_HOTSPOT: $( get_hg_commit "${repoDir}/hotspot" "${JDK_TAG}"  )
 JDK_COMMIT_JAXP: $( get_hg_commit "${repoDir}/jaxp" "${JDK_TAG}"  )
@@ -131,14 +140,14 @@ JDK_COMMIT_LANGTOOLS: $( get_hg_commit "${repoDir}/langtools" "${JDK_TAG}"  )
 JDK_COMMIT_NASHORN: $( get_hg_commit "${repoDir}/nashorn" "${JDK_TAG}"  )
 EOF
 elif  [ "${JDK_REPO_TYPE}" = 'hg' ] ; then
-tee "${repoDir}/repo-info.txt" << EOF
+tee "${repoDir}/src-info.txt" << EOF
 JDK_REPO_TYPE: ${JDK_REPO_TYPE}
 JDK_MAJOR: ${JDK_MAJOR}
 JDK_TAG: ${JDK_TAG}
 JDK_COMMIT: $( get_hg_commit "${repoDir}" "${JDK_TAG}" )
 EOF
 elif  [ "${JDK_REPO_TYPE}" = 'git' ] ; then
-tee "${repoDir}/repo-info.txt" << EOF
+tee "${repoDir}/src-info.txt" << EOF
 JDK_REPO_TYPE: ${JDK_REPO_TYPE}
 JDK_MAJOR: ${JDK_MAJOR}
 JDK_TAG: ${JDK_TAG}
