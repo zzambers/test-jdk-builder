@@ -7,14 +7,16 @@ on:
     tags:
       - "*"
 
+jobs:
   build-win:
     name: "Build windows"
     runs-on: "windows-2016"
     steps:
       - uses: actions/checkout@v2
       - uses: actions/checkout@v2
-        repository:  openjdk/jdk8u-dev
-        path: jdk8u-dev
+        with:
+          repository:  openjdk/jdk8u-dev
+          path: jdk8u-dev
       - uses: actions/setup-java@v1
         with:
           java-version: '7'
@@ -22,8 +24,18 @@ on:
         with:
           release: false
           install: base-devel curl tar zip unzip
+      - name: Download vc2010 pkg
+        shell: msys2 {0}
+        run: |
+          set -eux
+          curl -f -L -o "VCExpress2010.0.1.0.20140915.nupkg" "https://community.chocolatey.org/api/v2/package/project.2010.sdk/12.0.0.1"
+          unzip VCExpress2010.0.1.0.20140915.nupkg Tools/ChocolateyInstall.ps1
+          sed -i 's;http://download.microsoft.com/download/1/D/9/1D9A6C0E-FC89-43EE-9658-B9F0E3A76983/vc_web.exe;https://web.archive.org/web/20130120145346/https://download.microsoft.com/download/1/D/9/1D9A6C0E-FC89-43EE-9658-B9F0E3A76983/vc_web.exe;g' 'Tools/ChocolateyInstall.ps1'
+          zip -u VCExpress2010.0.1.0.20140915.nupkg Tools/ChocolateyInstall.ps1
+          unzip -l VCExpress2010.0.1.0.20140915.nupkg
       - name: Instal vc2010
-        run: choco install vcexpress2010
+        run: |
+          choco install VCExpress2010 -s ${{ github.workspace }}
       - name: Run build
         shell: msys2 {0}
         run: |
