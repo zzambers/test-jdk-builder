@@ -3,110 +3,18 @@ name: "build"
 on:
   push:
     branches:
-      - "master"
+      - "*"
     tags:
       - "*"
-
-jobs:
-  gen-src-archive:
-    name: "Generate source archive"
-    runs-on: "ubuntu-latest"
-    if: false
-    steps:
-      - uses: actions/checkout@v2
-      - name: checkout jdkforest-top
-        uses: actions/checkout@v2
-        with:
-          repository: ojdk-qa/jdkforest-top
-          path: jdkforest
-          ref: 'jdk8u272-b08'
-      - name: checkout jdkforest-corba
-        uses: actions/checkout@v2
-        with:
-          repository: ojdk-qa/jdkforest-corba
-          path: jdkforest/corba
-          ref: 'jdk8u272-b08'
-      - name: checkout jdkforest-hotspot
-        uses: actions/checkout@v2
-        with:
-          repository: ojdk-qa/jdkforest-hotspot
-          path: jdkforest/hotspot
-          ref: 'jdk8u272-b08'
-      - name: checkout jdkforest-jaxp
-        uses: actions/checkout@v2
-        with:
-          repository: ojdk-qa/jdkforest-jaxp
-          path: jdkforest/jaxp
-          ref: 'jdk8u272-b08'
-      - name: checkout jdkforest-jaxws
-        uses: actions/checkout@v2
-        with:
-          repository: ojdk-qa/jdkforest-jaxws
-          path: jdkforest/jaxws
-          ref: 'jdk8u272-b08'
-      - name: checkout jdkforest-jdk
-        uses: actions/checkout@v2
-        with:
-          repository: ojdk-qa/jdkforest-jdk
-          path: jdkforest/jdk
-          ref: 'jdk8u272-b08'
-      - name: checkout jdkforest-langtools
-        uses: actions/checkout@v2
-        with:
-          repository: ojdk-qa/jdkforest-langtools
-          path: jdkforest/langtools
-          ref: 'jdk8u272-b08'
-      - name: checkout jdkforest-nashorn
-        uses: actions/checkout@v2
-        with:
-          repository: ojdk-qa/jdkforest-nashorn
-          path: jdkforest/nashorn
-          ref: 'jdk8u272-b08'
-      - name: Run
-        run: |
-          tar -cJf jdkforest.tar.xz --exclude-vcs jdkforest
-      - uses: eine/tip@master
-        with:
-          tag: build-latest
-          token: ${{ secrets.GITHUB_TOKEN }}
-          files: |
-            jdkforest.tar.xz
-
-  win-choco:
-    name: "Windows test"
-    runs-on: "windows-2016"
-    if: false
-    steps:
-      # https://stackoverflow.com/questions/1865069/how-to-compile-a-64-bit-application-using-visual-c-2010-express
-      # http://blog.buildamation.com/2018/06/06/visualstudio-2010-c-express-with-64-bit-support/
-      #- name: Instal vc2010
-      #  run: choco install windows-sdk-7.1
-      #  continue-on-error: true
-      - name: List choco packages
-        run:
-          choco list -li
-      - uses: msys2/setup-msys2@v2
-        with:
-          release: false
-      - name: Run build
-        shell: msys2 {0}
-        run: |
-          set -eux
-          printenv
-          ls "/C/Program Files" || true
-          ls "/C/Program Files (x86)" || true
-          find "/C/Microsoft Visual Studio 10.0" || true
-          find "/C/Program Files (x86)/Microsoft Visual Studio 10.0" || true
-
-
 
   build-win:
     name: "Build windows"
     runs-on: "windows-2016"
-    if: false
-    #needs: gen-src-archive
     steps:
       - uses: actions/checkout@v2
+      - uses: actions/checkout@v2
+        repository:  openjdk/jdk8u-dev
+        path: jdk8u-dev
       - uses: actions/setup-java@v1
         with:
           java-version: '7'
@@ -126,36 +34,10 @@ jobs:
           cp -a "freetype-windows-binaries-2.10.2/win32" "freetype-windows-binaries-2.10.2/lib"
           freetypeDir="$( readlink -f freetype-windows-binaries-2.10.2 )"
 
-          curl -f -L -o "jdkforest.tar.xz" "https://github.com/zzambers/test-jdk-builder/releases/download/build-latest/jdkforest.tar.xz"
-          tar -xJf "jdkforest.tar.xz"
-          cd jdkforest
+          cd jdk8u-dev
           sed -i 's@\$CC \$FIXPATH_SRC@FIXPATH_SRC=$( echo $FIXPATH_SRC | tr "/" "\\\\" ) ; FIXPATH_BIN=$( echo $FIXPATH_BIN | tr "/" "\\\\" ) ; echo FIXPATH_SRC: $FIXPATH_SRC ; echo FIXPATH_BIN: $FIXPATH_BIN ; $CC $FIXPATH_SRC@g' common/autoconf/generated-configure.sh
 
           bash ./configure --with-boot-jdk="${JAVA_HOME}" --with-toolchain-version=2010 --with-msvcr-dll='C:\Windows\SysWOW64\msvcr100.dll' --with-target-bits=32 --enable-debug --enable-unlimited-crypto --enable-jfr --with-freetype="${freetypeDir}"
           make images
           ls build
           ls build/*/images
-
-
-  build-native:
-    name: "Build native"
-    runs-on: "ubuntu-16.04"
-    #needs: gen-src-archive
-    if: false
-    steps:
-      - uses: actions/checkout@v2
-      - uses: actions/setup-java@v1
-        with:
-          java-version: '7'
-      - name: Run
-        run: |
-          #curl -f -L -o "jdkforest.tar.xz" "https://github.com/zzambers/test-jdk-builder/releases/download/build-latest/jdkforest.tar.xz"
-          #tar -xJf "jdkforest.tar.xz"
-          #sudo apt-get install libx11-dev libxext-dev libxrender-dev libxtst-dev libxt-dev
-          #sudo apt-get install libcups2-dev
-          #sudo apt-get install libasound2-dev
-          #cd jdkforest
-          #bash ./configure --with-boot-jdk="${JAVA_HOME}" --enable-debug --enable-unlimited-crypto --enable-jfr
-          #make images
-          #ls build
-          #ls build/*/images
