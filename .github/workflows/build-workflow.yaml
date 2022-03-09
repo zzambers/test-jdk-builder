@@ -1,0 +1,64 @@
+name: "build"
+
+on:
+  push:
+    branches:
+      - "*"
+    tags:
+      - "*"
+
+jobs:
+  build-win:
+    name: "Build windows"
+    runs-on: "windows-2016"
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          repository:  openjdk/jdk8u-dev
+          path: jdk8u-dev
+      - uses: actions/setup-java@v1
+        with:
+          java-version: '7'
+      - uses: msys2/setup-msys2@v2
+        with:
+          release: false
+          install: base-devel curl tar zip unzip p7zip
+      - name: Cache VS2010Express1.iso
+        uses: actions/cache@v2
+        with:
+          path: |
+            VS2010Express1.iso
+          key: VS2010Express1.iso
+      - name: Download and unpack VS2010Express1.iso
+        shell: msys2 {0}
+        run: |
+          set -eux
+          # https://github.community/t/how-to-use-vc100-for-msbuild/16623/2
+          if ! [ -f "VS2010Express1.iso" ] ; then
+              curl -f -L -o "VS2010Express1.iso" "https://web.archive.org/web/20140227220734if_/http://download.microsoft.com/download/1/E/5/1E5F1C0A-0D5B-426A-A603-1798B951DDAE/VS2010Express1.iso"
+          fi
+          mkdir VS2010Express1
+          7z x -oVS2010Express1 "VS2010Express1.iso"
+      - name: Install VS2010Express
+        shell: cmd
+        run: |
+          ${{ github.workspace }}\VS2010Express1\VCExpress\setup.exe /q /norestart
+      - name: Run build
+        shell: msys2 {0}
+        run: |
+          set -eux
+
+          curl -f -L -o "freetype-windows-binaries-2.10.2.tar.gz" "https://github.com/ubawurinna/freetype-windows-binaries/archive/v2.10.2.tar.gz"
+          tar -xf "freetype-windows-binaries-2.10.2.tar.gz"
+          cp -a "freetype-windows-binaries-2.10.2/win32" "freetype-windows-binaries-2.10.2/lib"
+          freetypeDir="$( readlink -f freetype-windows-binaries-2.10.2 )"
+
+          cd jdk8u-dev
+          # Workaround for slash problem with FIXPATH_SRC and FIXPATH_BIN variables in common/autoconf/generated-configure.sh
+          sed -i 's@\$CC \$FIXPATH_SRC@FIXPATH_SRC=$( echo $FIXPATH_SRC | tr "/" "\\\\" ) ; FIXPATH_BIN=$( echo $FIXPATH_BIN | tr "/" "\\\\" ) ; echo FIXPATH_SRC: $FIXPATH_SRC ; echo FIXPATH_BIN: $FIXPATH_BIN ; $CC $FIXPATH_SRC@g' common/autoconf/generated-configure.sh
+
+          bash ./configure --with-boot-jdk="${JAVA_HOME}" --with-toolchain-version=2010 --with-msvcr-dll='C:\Windows\SysWOW64\msvcr100.dll' --with-target-bits=32 --enable-debug --enable-unlimited-crypto --enable-jfr --with-freetype="${freetypeDir}"
+          make images
+          ls build
+          ls build/*/images
+          build/*/images/j2sdk-image/bin/java -version
