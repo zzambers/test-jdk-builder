@@ -54,10 +54,12 @@ jobs:
           freetypeDir="$( readlink -f freetype-windows-binaries-2.10.2 )"
 
           cd jdk8u-dev
-          # Workaround for slash problem with FIXPATH_SRC and FIXPATH_BIN variables in common/autoconf/generated-configure.sh
-          sed -i 's@\$CC \$FIXPATH_SRC@FIXPATH_SRC=$( echo $FIXPATH_SRC | tr "/" "\\\\" ) ; FIXPATH_BIN=$( echo $FIXPATH_BIN | tr "/" "\\\\" ) ; echo FIXPATH_SRC: $FIXPATH_SRC ; echo FIXPATH_BIN: $FIXPATH_BIN ; $CC $FIXPATH_SRC@g' common/autoconf/generated-configure.sh
-
-          bash ./configure --with-boot-jdk="${JAVA_HOME}" --with-toolchain-version=2010 --with-msvcr-dll='C:\Windows\SysWOW64\msvcr100.dll' --with-target-bits=32 --enable-debug --enable-unlimited-crypto --enable-jfr --with-freetype="${freetypeDir}"
+          # MSYS2_ARG_CONV_EXCL is workaround to prevent unwanted/wrong path
+          # conversion in CC arg by msys2 ( -FeD:/a/... -> -FeD:A:/... )
+          # in common/autoconf/generated-configure.sh
+          #    $CC $FIXPATH_SRC -Fe$FIXPATH_BIN > $OUTPUT_ROOT/fixpath1.log 2>&1
+          workspaceDir='${{ github.workspace }}'
+          MSYS2_ARG_CONV_EXCL="-Fe${workspaceDir%%:*}:/" bash ./configure --with-boot-jdk="${JAVA_HOME}" --with-toolchain-version=2010 --with-msvcr-dll='C:\Windows\SysWOW64\msvcr100.dll' --with-target-bits=32 --enable-debug --enable-unlimited-crypto --enable-jfr --with-freetype="${freetypeDir}"
           make images
           ls build
           ls build/*/images
