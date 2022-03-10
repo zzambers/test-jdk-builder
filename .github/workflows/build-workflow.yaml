@@ -10,7 +10,17 @@ on:
 jobs:
   build-win:
     name: "Build windows"
-    runs-on: "windows-2016"
+    runs-on: "windows-2019"
+    strategy:
+      matrix:
+        bits: [32, 64]
+        include:
+          - bits: 32
+            ftlibdir: win32
+            systemdir: C:\Windows\SysWOW64
+          - bits: 64
+            ftlibdir: win64
+            systemdir: C:\Windows\System32
     steps:
       - uses: actions/checkout@v2
         with:
@@ -29,7 +39,8 @@ jobs:
           path: |
             VS2010Express1.iso
           key: VS2010Express1.iso
-      - name: Download and unpack VS2010Express1.iso
+
+      - name: Download and unpack VS2010Express1.iso and GRMSDKX_EN_DVD.iso
         shell: msys2 {0}
         run: |
           set -eux
@@ -39,18 +50,74 @@ jobs:
           fi
           mkdir VS2010Express1
           7z x -oVS2010Express1 "VS2010Express1.iso"
+
+          ls -lah 'C:/Program Files (x86)' || true
+          ls -lah 'C:/Program Files' || true
+          find 'C:/Program Files (x86)/Microsoft Visual Studio 10.0/' || true
+          find 'C:/Program Files/Microsoft Visual Studio 10.0/' || true
       - name: Install VS2010Express
         shell: cmd
         run: |
           ${{ github.workspace }}\VS2010Express1\VCExpress\setup.exe /q /norestart
+          "C:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\vcvarsall.bat" /help
+      - name: Cache GRMSDKX_EN_DVD.iso
+        uses: actions/cache@v2
+        if: matrix.bits == 64
+        with:
+          path: |
+            GRMSDKX_EN_DVD.iso
+          key: GRMSDKX_EN_DVD.iso
+      - name: Download and unpack GRMSDKX_EN_DVD.iso
+        shell: msys2 {0}
+        if: matrix.bits == 64
+        run: |
+          set -eux
+          if ! [ -f "GRMSDKX_EN_DVD.iso" ] ; then
+              curl -f -L -o "GRMSDKX_EN_DVD.iso" "http://download.microsoft.com/download/F/1/0/F10113F5-B750-4969-A255-274341AC6BCE/GRMSDKX_EN_DVD.iso"
+          fi
+          mkdir GRMSDKX_EN_DVD
+          7z x -oGRMSDKX_EN_DVD "GRMSDKX_EN_DVD.iso"
+          if ! [ -f "subinacl.msi" ] ; then
+              curl -f -L -o "subinacl.msi" "https://web.archive.org/web/20190830103837/https://download.microsoft.com/download/1/7/d/17d82b72-bc6a-4dc8-bfaa-98b37b22b367/subinacl.msi"
+          fi
+      - name: Fix registry 7.1
+        shell: cmd
+        if: matrix.bits == 64
+        run: |
+          rem https://stackoverflow.com/questions/32091593/cannot-install-windows-sdk-7-1-on-windows-10/35357470#35357470
+          msiexec /i subinacl.msi /quiet
+          "C:\Program Files (x86)\Windows Resource Kits\Tools\subinacl.exe" /subkeyreg "HKEY_LOCAL_MACHINE\SOFTWARE\Wow6432Node\Microsoft\NET Framework Setup\NDP\v4" /setowner="%username%"
+          "C:\Program Files (x86)\Windows Resource Kits\Tools\subinacl.exe" /subkeyreg "HKEY_LOCAL_MACHINE\SOFTWARE\Wow6432Node\Microsoft\NET Framework Setup\NDP\v4" /grant="%username%"=f
+          reg ADD "HKLM\Software\Microsoft\NET Framework Setup\NDP\v4\Full" /v Version /t REG_SZ /d 4.0.30319 /reg:32 /f
+          reg ADD "HKLM\Software\Microsoft\NET Framework Setup\NDP\v4\Client" /v Version /t REG_SZ /d 4.0.30319 /reg:32 /f
+      - name: Install SDK 7.1
+        shell: cmd
+        if: false
+        run: |
+          ${{ github.workspace }}\GRMSDKX_EN_DVD\setup.exe /q /norestart
+      - name: Install SDK 7.1
+        shell: cmd
+        if: matrix.bits == 64
+        run: |
+          choco install windows-sdk-7.1
+      - name: List platforms
+        shell: cmd
+        if: matrix.bits == 64
+        run: |
+          "C:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\vcvarsall.bat" /help
       - name: Run build
         shell: msys2 {0}
         run: |
           set -eux
 
+          ls -lah 'C:/Program Files (x86)' || true
+          ls -lah 'C:/Program Files' || true
+          find 'C:/Program Files (x86)/Microsoft Visual Studio 10.0/' || true
+          find 'C:/Program Files/Microsoft Visual Studio 10.0/' || true
+
           curl -f -L -o "freetype-windows-binaries-2.10.2.tar.gz" "https://github.com/ubawurinna/freetype-windows-binaries/archive/v2.10.2.tar.gz"
           tar -xf "freetype-windows-binaries-2.10.2.tar.gz"
-          cp -a "freetype-windows-binaries-2.10.2/win32" "freetype-windows-binaries-2.10.2/lib"
+          cp -a "freetype-windows-binaries-2.10.2/${{ matrix.ftlibdir }}" "freetype-windows-binaries-2.10.2/lib"
           freetypeDir="$( readlink -f freetype-windows-binaries-2.10.2 )"
 
           cd jdk8u-dev
@@ -59,7 +126,7 @@ jobs:
           # in common/autoconf/generated-configure.sh
           #    $CC $FIXPATH_SRC -Fe$FIXPATH_BIN > $OUTPUT_ROOT/fixpath1.log 2>&1
           workspaceDir='${{ github.workspace }}'
-          MSYS2_ARG_CONV_EXCL="-Fe${workspaceDir%%:*}:/" bash ./configure --with-boot-jdk="${JAVA_HOME}" --with-toolchain-version=2010 --with-msvcr-dll='C:\Windows\SysWOW64\msvcr100.dll' --with-target-bits=32 --enable-debug --enable-unlimited-crypto --enable-jfr --with-freetype="${freetypeDir}"
+          MSYS2_ARG_CONV_EXCL="-Fe${workspaceDir%%:*}:/" bash ./configure --with-boot-jdk="${JAVA_HOME}" --with-toolchain-version=2010 --with-msvcr-dll='${{ matrix.systemdir }}\msvcr100.dll' --with-target-bits=${{ matrix.bits }} --enable-debug --enable-unlimited-crypto --enable-jfr --with-freetype="${freetypeDir}"
           make images
           ls build
           ls build/*/images
